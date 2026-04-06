@@ -1,16 +1,10 @@
 package com.practice.prod_features.advices;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@Builder
+@Data
 public class ApiResponse<T>{
     private T data;
 
@@ -18,23 +12,17 @@ public class ApiResponse<T>{
 
     private LocalDateTime timeStamp;
 
+    public ApiResponse() {
+        this.timeStamp = LocalDateTime.now();
+    }
+
     public ApiResponse(T data) {
+        this();
         this.data = data;
-        this.timeStamp = LocalDateTime.now();
     }
 
-    public ApiResponse(T data, LocalDateTime timeStamp) {
-        this.data = data;
-        this.timeStamp = timeStamp;
-    }
-
-    public ApiResponse(ApiError apiError) {
-        this.apiError = apiError;
-        this.timeStamp = LocalDateTime.now();
-    }
-
-    public ApiResponse(ApiError apiError, LocalDateTime timeStamp) {
-        this.apiError = apiError;
-        this.timeStamp = timeStamp;
+    public ApiResponse(ApiError error) {
+        this();
+        this.apiError = error;
     }
 }
