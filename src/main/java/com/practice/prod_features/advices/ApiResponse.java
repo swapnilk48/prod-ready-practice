@@ -5,6 +5,8 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Data
+@Getter
+@Setter
 public class ApiResponse<T>{
     private T data;
 

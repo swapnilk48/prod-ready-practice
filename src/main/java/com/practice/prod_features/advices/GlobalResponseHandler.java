@@ -18,7 +18,8 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
 
     @Override
     public @Nullable Object beforeBodyWrite(@Nullable Object body, MethodParameter returnType, MediaType selectedContentType, Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
-        if(body instanceof ApiResponse<?>)
+        String path = request.getURI().getPath();
+        if(path.contains("/v3/api-docs") || path.contains("/swagger") || body instanceof ApiResponse<?>)
             return body;
 
         return new ApiResponse<>(body);

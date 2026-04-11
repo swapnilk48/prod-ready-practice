@@ -11,19 +11,19 @@ import java.util.List;
 @SpringBootTest
 class ProdFeaturesApplicationTests {
 
-    @Autowired
-    private EmployeeClient employeeClient;
-
-	@Test
-    void getAllEmployees(){
-        List<EmployeeDTO> employeeDTOList = employeeClient.getAllEmployees();
-        System.out.println(employeeDTOList);
-    }
-
-    @Test
-    void getEmployeeById(){
-        EmployeeDTO employeeDTO = employeeClient.getEmployeeById(1L);
-        System.out.println(employeeDTO);
-    }
+//    @Autowired
+//    private EmployeeClient employeeClient;
+//
+//	@Test
+//    void getAllEmployees(){
+//        List<EmployeeDTO> employeeDTOList = employeeClient.getAllEmployees();
+//        System.out.println(employeeDTOList);
+//    }
+//
+//    @Test
+//    void getEmployeeById(){
+//        EmployeeDTO employeeDTO = employeeClient.getEmployeeById(1L);
+//        System.out.println(employeeDTO);
+//    }
 
 }

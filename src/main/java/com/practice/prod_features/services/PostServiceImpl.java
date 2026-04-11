@@ -4,59 +4,89 @@ import com.practice.prod_features.dto.PostDTO;
 import com.practice.prod_features.entities.PostEntity;
 import com.practice.prod_features.exceptions.ResourceNotFoundException;
 import com.practice.prod_features.repositories.PostRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class PostServiceImpl implements PostService{
+@RequiredArgsConstructor
+@Slf4j
+public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
-
-    @Autowired
     private final ModelMapper modelMapper;
-
-    public PostServiceImpl(PostRepository postRepository, ModelMapper modelMapper){
-        this.postRepository = postRepository;
-        this.modelMapper = modelMapper;
-    }
 
     @Override
     public List<PostDTO> getAllPosts() {
-        return postRepository
-                .findAll()
-                .stream()
-                .map(postEntity -> modelMapper.map(postEntity, PostDTO.class))
+        log.info("Fetching all posts");
+
+        List<PostEntity> posts = postRepository.findAll();
+
+        log.debug("Total posts fetched from DB: {}", posts.size());
+
+        List<PostDTO> result = posts.stream()
+                .map(post -> modelMapper.map(post, PostDTO.class))
                 .collect(Collectors.toList());
+
+        log.info("Successfully mapped {} posts to DTO", result.size());
+
+        return result;
     }
-
-
 
     @Override
     public PostDTO createNewPost(PostDTO inputPost) {
+        log.info("Creating new post");
+
+        log.debug("Input PostDTO: {}", inputPost);
+
         PostEntity postEntity = modelMapper.map(inputPost, PostEntity.class);
-        return modelMapper.map(postRepository.save(postEntity), PostDTO.class);
+
+        PostEntity savedPost = postRepository.save(postEntity);
+
+        log.info("Post created successfully with id={}", savedPost.getId());
+
+        return modelMapper.map(savedPost, PostDTO.class);
     }
 
     @Override
     public PostDTO getPostById(Long id) {
-        PostEntity postEntity = postRepository
-                .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Post not found with ID:"+id));
+        log.info("Fetching post with id={}", id);
+
+        PostEntity postEntity = postRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("Post not found with id={}", id);
+                    return new ResourceNotFoundException("Post not found with ID:" + id);
+                });
+
+        log.debug("Post found: {}", postEntity);
+
         return modelMapper.map(postEntity, PostDTO.class);
     }
 
     @Override
     public PostDTO updatePost(Long postId, PostDTO inputPost) {
+        log.info("Updating post with id={}", postId);
+
         PostEntity olderPost = postRepository.findById(postId)
-                .orElseThrow(() -> new ResourceNotFoundException("Post not found with ID:"+postId));
+                .orElseThrow(() -> {
+                    log.error("Post not found for update with id={}", postId);
+                    return new ResourceNotFoundException("Post not found with ID:" + postId);
+                });
+
+        log.debug("Existing post before update: {}", olderPost);
+        log.debug("Incoming PostDTO: {}", inputPost);
+
         inputPost.setId(postId);
         modelMapper.map(inputPost, olderPost);
+
         PostEntity savedPost = postRepository.save(olderPost);
+
+        log.info("Post updated successfully with id={}", savedPost.getId());
+
         return modelMapper.map(savedPost, PostDTO.class);
     }
 }
