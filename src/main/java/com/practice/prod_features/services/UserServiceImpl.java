@@ -1,12 +1,24 @@
 package com.practice.prod_features.services;
 
+import com.practice.prod_features.dto.LoginDTO;
+import com.practice.prod_features.dto.SignUpDTO;
+import com.practice.prod_features.dto.UserDTO;
+import com.practice.prod_features.entities.UserEntity;
+import com.practice.prod_features.exceptions.UserAlreadyExists;
 import com.practice.prod_features.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-//@Service
+import java.util.Optional;
+
+@Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
 

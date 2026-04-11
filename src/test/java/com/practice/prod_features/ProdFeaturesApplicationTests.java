@@ -1,14 +1,10 @@
 package com.practice.prod_features;
 
-import com.practice.prod_features.clients.EmployeeClient;
-import com.practice.prod_features.dto.EmployeeDTO;
-import com.practice.prod_features.entities.User;
+import com.practice.prod_features.entities.UserEntity;
 import com.practice.prod_features.services.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
 
 @SpringBootTest
 class ProdFeaturesApplicationTests {
@@ -33,9 +29,9 @@ class ProdFeaturesApplicationTests {
 
     @Test
     void testJwt(){
-        User user = new User(1L, "Swapnil", "Swapnil123");
+        UserEntity userEntity = new UserEntity(1L, "Swapnil", "Swapnil123");
 
-        String token = jwtService.generateToken(user);
+        String token = jwtService.generateToken(userEntity);
 
         System.out.println(token);
 

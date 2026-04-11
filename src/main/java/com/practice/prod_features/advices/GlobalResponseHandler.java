@@ -11,15 +11,20 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 @RestControllerAdvice
 public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
+//    @Override
+//    public boolean supports(MethodParameter returnType, Class converterType) {
+//        return true;
+//    }
+
     @Override
     public boolean supports(MethodParameter returnType, Class converterType) {
-        return true;
+        return !returnType.getParameterType().equals(String.class);
     }
 
     @Override
     public @Nullable Object beforeBodyWrite(@Nullable Object body, MethodParameter returnType, MediaType selectedContentType, Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         String path = request.getURI().getPath();
-        if(path.contains("/v3/api-docs") || path.contains("/swagger") || body instanceof ApiResponse<?>)
+        if(path.contains("/v3/api-docs") || path.contains("/swagger") || body instanceof ApiResponse<?> || body instanceof String)
             return body;
 
         return new ApiResponse<>(body);
