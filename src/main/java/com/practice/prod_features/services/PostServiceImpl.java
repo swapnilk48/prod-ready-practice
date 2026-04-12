@@ -2,11 +2,13 @@ package com.practice.prod_features.services;
 
 import com.practice.prod_features.dto.PostDTO;
 import com.practice.prod_features.entities.PostEntity;
+import com.practice.prod_features.entities.UserEntity;
 import com.practice.prod_features.exceptions.ResourceNotFoundException;
 import com.practice.prod_features.repositories.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -55,6 +57,10 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDTO getPostById(Long id) {
         log.info("Fetching post with id={}", id);
+
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        log.info("User:{}", userEntity);
 
         PostEntity postEntity = postRepository.findById(id)
                 .orElseThrow(() -> {
