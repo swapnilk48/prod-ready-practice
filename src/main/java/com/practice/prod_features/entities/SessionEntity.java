@@ -30,6 +30,9 @@ public class SessionEntity {
     @Column(nullable = false, length = 1000)
     private String token;
 
+    @Column(length = 1000)
+    private String refreshToken;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 }

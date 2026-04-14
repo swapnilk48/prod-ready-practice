@@ -1,6 +1,7 @@
 package com.practice.prod_features.services;
 
 import com.practice.prod_features.dto.LoginDTO;
+import com.practice.prod_features.dto.LoginResponseDTO;
 import com.practice.prod_features.dto.SignUpDTO;
 import com.practice.prod_features.dto.UserDTO;
 import com.practice.prod_features.entities.SessionEntity;
@@ -11,6 +12,7 @@ import com.practice.prod_features.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,6 +37,8 @@ public class AuthService {
 
     private final SessionRepository sessionRepository;
 
+    private final UserService userService;
+
     public UserDTO signUp(SignUpDTO signUpDTO) {
         String email = signUpDTO.getEmail();
 
@@ -50,22 +54,42 @@ public class AuthService {
         return modelMapper.map(savedUser, UserDTO.class);
     }
 
-    public String login(LoginDTO loginDTO) {
+    public LoginResponseDTO login(LoginDTO loginDTO) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword())
         );
 
         UserEntity user = (UserEntity) authentication.getPrincipal();
 
-        String token = jwtService.generateToken(user);
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+        saveSession(user, accessToken, refreshToken);
+
+        return new LoginResponseDTO(user.getId(), accessToken, refreshToken);
+    }
+
+    public LoginResponseDTO refreshToken(String refreshToken) {
+        Long userId = jwtService.getUserIdFromToken(refreshToken);
+        if (!sessionRepository.existsByUser_IdAndRefreshToken(userId, refreshToken)) {
+            throw new AuthenticationServiceException("Refresh token expired because you logged in from another device");
+        }
+
+        UserEntity userEntity = userService.getUserById(userId);
+
+        String accessToken = jwtService.generateAccessToken(userEntity);
+        saveSession(userEntity, accessToken, refreshToken);
+
+        return new LoginResponseDTO(userEntity.getId(), accessToken, refreshToken);
+    }
+
+    private void saveSession(UserEntity user, String accessToken, String refreshToken) {
         SessionEntity session = sessionRepository.findByUser_Id(user.getId())
                 .orElseGet(SessionEntity::new);
 
         session.setUser(user);
-        session.setToken(token);
+        session.setToken(accessToken);
+        session.setRefreshToken(refreshToken);
         session.setCreatedAt(LocalDateTime.now());
         sessionRepository.save(session);
-
-        return token;
     }
 }

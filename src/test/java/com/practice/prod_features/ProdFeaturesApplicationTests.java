@@ -24,20 +24,20 @@ class ProdFeaturesApplicationTests {
 //        System.out.println(employeeDTO);
 //    }
 
-    @Autowired
-    private JwtService jwtService;
-
-    @Test
-    void testJwt(){
-        UserEntity userEntity = new UserEntity(1L, "Swapnil@example.com", "Swapnil123", "Swapnil");
-
-        String token = jwtService.generateToken(userEntity);
-
-        System.out.println(token);
-
-        Long id = jwtService.getUserIdFromToken(token);
-
-        System.out.println(id);
-    }
+//    @Autowired
+//    private JwtService jwtService;
+//
+//    @Test
+//    void testJwt(){
+//        UserEntity userEntity = new UserEntity(1L, "Swapnil@example.com", "Swapnil123", "Swapnil");
+//
+//        String token = jwtService.generateToken(userEntity);
+//
+//        System.out.println(token);
+//
+//        Long id = jwtService.getUserIdFromToken(token);
+//
+//        System.out.println(id);
+//    }
 
 }

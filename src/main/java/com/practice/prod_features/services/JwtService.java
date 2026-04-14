@@ -18,17 +18,32 @@ public class JwtService {
     @Value("${jwt.secretKey}")
     private String jwtSecretKey;
 
+    @Value("${jwt.accessTokenExpirationMs}")
+    private long accessTokenExpirationMs;
+
+    @Value("${jwt.refreshTokenExpirationMs}")
+    private long refreshTokenExpirationMs;
+
     private SecretKey getSecretKey(){
         return Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(UserEntity userEntity){
+    public String generateAccessToken(UserEntity userEntity){
         return Jwts.builder()
                 .subject(userEntity.getId().toString())
                 .claim("email", userEntity.getEmail())
                 .claim("roles", Set.of("ADMIN", "USER"))
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1000*60))
+                .expiration(new Date(System.currentTimeMillis() + 1000*30))
+                .signWith(getSecretKey())
+                .compact();
+    }
+
+    public String generateRefreshToken(UserEntity userEntity){
+        return Jwts.builder()
+                .subject(userEntity.getId().toString())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 1000*60*5))
                 .signWith(getSecretKey())
                 .compact();
     }
