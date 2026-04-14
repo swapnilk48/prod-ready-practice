@@ -1,8 +1,10 @@
 package com.practice.prod_features.filters;
 
 import com.practice.prod_features.entities.UserEntity;
+import com.practice.prod_features.repositories.SessionRepository;
 import com.practice.prod_features.services.JwtService;
 import com.practice.prod_features.services.UserService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +29,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final UserService userService;
 
+    private final SessionRepository sessionRepository;
+
     @Autowired
     @Qualifier("handlerExceptionResolver")
     private HandlerExceptionResolver handlerExceptionResolver;
@@ -48,10 +52,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             Long userId = jwtService.getUserIdFromToken(token);
 
             if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                if (!sessionRepository.existsByUser_IdAndToken(userId, token)) {
+                    throw new JwtException("Session expired because you logged in from another device");
+                }
+
                 UserEntity userEntity = userService.getUserById(userId);
 
                 UsernamePasswordAuthenticationToken authenticationToken =
-                        new UsernamePasswordAuthenticationToken(userEntity, null, null);
+                        new UsernamePasswordAuthenticationToken(userEntity, null, userEntity.getAuthorities());
 
                 authenticationToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)

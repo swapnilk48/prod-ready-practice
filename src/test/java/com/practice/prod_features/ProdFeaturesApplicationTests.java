@@ -29,7 +29,7 @@ class ProdFeaturesApplicationTests {
 
     @Test
     void testJwt(){
-        UserEntity userEntity = new UserEntity(1L, "Swapnil", "Swapnil123");
+        UserEntity userEntity = new UserEntity(1L, "Swapnil@example.com", "Swapnil123", "Swapnil");
 
         String token = jwtService.generateToken(userEntity);
 
